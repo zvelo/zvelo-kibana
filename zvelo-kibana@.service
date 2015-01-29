@@ -1,0 +1,28 @@
+[Unit]
+Description=zvelo-kibana service
+After=docker.service
+
+[Service]
+User=core
+EnvironmentFile=/etc/environment
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill %p-%i
+ExecStartPre=-/usr/bin/docker rm %p-%i
+ExecStartPre=/usr/bin/docker pull zvelo/%p
+ExecStart=/bin/bash -c " \
+  TMPFILE_ENVETCD=$(mktemp -t service.XXXXXXXXXX); \
+  /opt/bin/envetcd \
+    --clean-env \
+    --service %p \
+    --output $TMPFILE_ENVETCD \
+    env; \
+  exec /usr/bin/docker run \
+    --rm \
+    --env-file $TMPFILE_ENVETCD \
+    --env-file /etc/environment \
+    -e IMAGE_NAME=zvelo/%p \
+    --name=%p-%i \
+    -p 8004 \
+    zvelo/%p \
+  "
+ExecStop=/usr/bin/docker stop %p-%i
