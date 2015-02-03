@@ -12,3 +12,4 @@ ADD kibana.conf /etc/nginx/conf.d/default.conf
 EXPOSE 8004
 ENTRYPOINT ["/usr/local/bin/start.sh"]
 CMD []
+ENV GIT_COMMIT unknown
